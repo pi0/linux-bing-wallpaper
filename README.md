@@ -1,31 +1,13 @@
-# Linux Bing Wallpaper Shell Scripts
+# Linux Bing Wallpaper For linux
 
-It sets Bing.com wallpaper of the Day as your Linux Desktop
+This script sets Bing.com wallpaper of the Day as your Linux Desktop
 
-supports GNOME and KDE4.
+supports GNOME, KDE4, XFCE4
 
-## Usage
+## How to install
 
-Download these two scripts. 
-
-Put them somewhere 
-
-Change mkt varible in bing_wallpaper.sh to yours.
-
-Give them execution permission.
-
-Make them autostart.(Google is your friend)
-
-So next time you boot your computer for the first time a day, it'll run once. 
-
-Next boots it will run too, but do nothing.
-
-## Easy commands
-
-		mkdir bin
-		wget https://raw.github.com/marguerite/linux-bing-wallpaper/master/bing_wallpaper.sh -o bin/bing_wallpaper.sh
-		# If you use KDE
-		# wget https://raw.github.com/marguerite/linux-bing-wallpaper/master/kde4_set_wallpaper.sh -o bin/kde4_set_wallpaper.sh
-		chmod +x bin/*.sh
-		./bin/bing_wallpaper.sh
-
+	- clone this project in somewere
+	- Run `crontab -e`
+		And add an item like this :
+			`30 12 * * * /home/pooya/opt/linux-bing-wallpaper/bing_wallpaper.sh`	
+	- Run this script manually to check if everything works :)
