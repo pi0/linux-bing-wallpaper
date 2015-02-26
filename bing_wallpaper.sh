@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Author: Marguerite Su <i@marguerite.su>
 # Version: 1.0
 # License: GPL-3.0
@@ -11,7 +11,7 @@ bing="www.bing.com"
 # The mkt parameter determines which Bing market you would like to
 # obtain your images from.
 # Valid values are: en-US, zh-CN, ja-JP, en-AU, en-UK, de-DE, en-NZ, en-CA.
-mkt="zh-CN"
+mkt="en-US"
 
 # The idx parameter determines where to start from. 0 is the current day,
 # 1 the previous day, etc.
@@ -71,14 +71,13 @@ detectDE()
       elif xprop -root _DT_SAVE_MODE 2> /dev/null | grep ' = \"xfce4\"$' >/dev/null 2>&1; then DE=xfce;
       elif xprop -root 2> /dev/null | grep -i '^xfce_desktop_window' >/dev/null 2>&1; then DE=xfce
       fi
-    fi
+    fi 
 
     if [ x"$DE" = x"" ]; then
       # fallback to checking $DESKTOP_SESSION
       case "$DESKTOP_SESSION" in
          gnome)
-           DE=gnome;
-           ;;
+           DE=gnome; ;;
          LXDE|Lubuntu)
            DE=lxde; 
            ;;
@@ -98,12 +97,7 @@ detectDE()
     fi
 }
 
-# Download the highest resolution
-while true; do
-
-    TOMORROW=$(date --date="tomorrow" +%Y-%m-%d)
-    TOMORROW=$(date --date="$TOMORROW 00:10:00" +%s)
-    
+		# Download the highest resolution
     for picRes in _1920x1200 _1366x768 _1280x720 _1024x768; do
 
     # Extract the relative URL of the Bing pic of the day from
@@ -112,10 +106,10 @@ while true; do
     picURL=$bing$(echo $(curl -s $xmlURL) | grep -oP "<urlBase>(.*)</urlBase>" | cut -d ">" -f 2 | cut -d "<" -f 1)$picRes$picExt
 
     # $picName contains the filename of the Bing pic of the day
-    picName=${picURL#*2f}
+    picName=$(echo ${picURL#*2f}|sed 's/\//_/g') 
 
     # Download the Bing pic of the day
-    curl -s -o $saveDir$picName $picURL
+    wget --progress=bar -cO $saveDir$picName $picURL
 
     # Test if it's a pic
     file $saveDir$picName | grep HTML && rm -rf $saveDir$picName && continue
@@ -123,6 +117,8 @@ while true; do
     break
     done
     detectDE 
+		
+		echo "Setting wallpaper for $DE..."
 
     if [[ $DE = "gnome" ]]; then
     # Set the GNOME3 wallpaper
@@ -137,10 +133,11 @@ while true; do
     test -e /usr/bin/gettext || sudo zypper --no-refresh install gettext-runtime
     ./kde4_set_wallpaper.sh $saveDir$picName
     fi
-    
-    NOW=$(date +%s)
-    SLEEP=`echo $TOMORROW-$NOW|bc`
-    sleep $SLEEP
-done
-# Exit the script
-exit 0
+
+		if [[ $DE = "xfce" ]]; then
+
+			# Set the XFCE wallpaper
+			xfconf-query --channel xfce4-desktop --property /backdrop/screen0/monitor0/image-path --set $saveDir$picName
+			xfconf-query --channel xfce4-desktop --property /backdrop/screen0/monitor0/workspace0/last-image --set $saveDir$picName
+
+		fi	
